@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetterShorts</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #202020;
+      overflow: hidden;
+      color: #fff;
+      -webkit-app-region: drag;
+    }
+
+    .app-container {
+      width: 100vw;
+      height: 100vh;
+      background: #202020;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .titlebar {
+      height: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      background: #2b2b2b;
+      border-bottom: 1px solid #3a3a3a;
+      -webkit-app-region: drag;
+      gap: 16px;
+    }
+
+    .titlebar-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 400px;
+      -webkit-app-region: no-drag;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      background: #1a1a1a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #b3b3b3;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .search-bar input:focus {
+      border-color: #60cdff;
+      background: #242424;
+      color: #ffffff;
+    }
+
+    .search-bar {
+      position: relative;
+    }
+
+    .search-bar::before {
+      content: '🔍';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+    }
+
+    .titlebar-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .titlebar-btn {
+      width: 32px;
+      height: 28px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .titlebar-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .titlebar-btn.close:hover {
+      background: #e81123;
+      color: #fff;
+    }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: #1a1a1a;
+      border-right: 1px solid #3a3a3a;
+      padding: 8px 0;
+      -webkit-app-region: no-drag;
+    }
+
+    .nav-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      color: #ffffff;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-item:hover {
+      background: #2b2b2b;
+    }
+
+    .nav-item.active {
+      background: #2b2b2b;
+      border-left-color: #60cdff;
+      color: #ffffff;
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px 48px;
+      overflow-y: auto;
+      -webkit-app-region: no-drag;
+      background: #202020;
+    }
+
+    .content::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .content::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: #3a3a3a;
+      border-radius: 6px;
+    }
+
+    .content::-webkit-scrollbar-thumb:hover {
+      background: #4a4a4a;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    p {
+      color: #b3b3b3;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .video-container {
+      margin: 24px 0;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #60cdff;
+      border: none;
+      border-radius: 4px;
+      color: #000000;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      background: #7dd8ff;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #3a3a3a;
+      color: #ffffff;
+    }
+
+    .btn-secondary:hover {
+      background: #4a4a4a;
+    }
+
+    .btn-danger {
+      background: #e81123;
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background: #f1344d;
+    }
+
+    .shortcut-list {
+      margin-top: 24px;
+    }
+
+    .shortcut-item {
+      background: #2b2b2b;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s;
+    }
+
+    .shortcut-item:hover {
+      background: #323232;
+      border-color: #4a4a4a;
+    }
+
+    .shortcut-info {
+      flex: 1;
+    }
+
+    .shortcut-keys {
+      display: inline-block;
+      background: #3a3a3a;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: #60cdff;
+      font-weight: 600;
+      border: 1px solid #4a4a4a;
+    }
+
+    .shortcut-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #2b2b2b;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 500px;
+      max-width: 600px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #60cdff;
+      background: #424242;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .credit-item {
+      background: #2b2b2b;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .credit-item h3 {
+      margin-bottom: 8px;
+      color: #60cdff;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #0078d4, #00bcf2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(0, 120, 212, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="titlebar">
+      <div class="titlebar-title">
+        <span style="font-size: 20px;">⚡</span>
+        BetterShorts
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Rechercher des paramètres">
+      </div>
+      <div class="titlebar-controls">
+        <button class="titlebar-btn minimize" onclick="minimizeWindow()">−</button>
+        <button class="titlebar-btn maximize" onclick="maximizeWindow()">□</button>
+        <button class="titlebar-btn close" onclick="closeWindow()">×</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="nav-item active" onclick="showSection('home')">
+          <span style="font-size: 18px;">🏠</span>
+          <span>Accueil</span>
+        </div>
+        <div class="nav-item" onclick="showSection('shortcuts')">
+          <span style="font-size: 18px;">⌨️</span>
+          <span>Raccourcis</span>
+        </div>
+        <div class="nav-item" onclick="showSection('settings')">
+          <span style="font-size: 18px;">⚙️</span>
+          <span>Paramètres</span>
+        </div>
+        <div class="nav-item" onclick="showSection('credits')">
+          <span style="font-size: 18px;">ℹ️</span>
+          <span>Crédits</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="section active" id="home">
+          <h1>Bienvenue dans BetterShorts</h1>
+          <p>Boostez votre productivité avec des raccourcis clavier personnalisés ! BetterShorts vous permet de créer des raccourcis globaux pour lancer vos applications favorites, ouvrir des sites web ou exécuter du code personnalisé.</p>
+          
+          <div class="video-container">
+            <h2>🎥 Tutoriel vidéo</h2>
+            <p>Découvrez comment utiliser BetterShorts en quelques minutes :</p>
+            <p style="color: rgba(255,255,255,0.5); font-style: italic;">
+              📹 Vidéo de démonstration - Apprenez à créer votre premier raccourci<br>
+              🎯 Comment ouvrir rapidement vos applications favorites<br>
+              ⚡ Automatisez vos tâches répétitives<br>
+              🔧 Personnalisez vos raccourcis selon vos besoins
+            </p>
+            <button class="btn" style="margin-top: 16px;">▶️ Voir le tutoriel</button>
+          </div>
+
+          <h2>✨ Fonctionnalités principales</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px;">
+            <div class="credit-item">
+              <h3>⚡ Raccourcis globaux</h3>
+              <p>Accédez à vos outils depuis n'importe où sur votre système</p>
+            </div>
+            <div class="credit-item">
+              <h3>🎯 Multi-actions</h3>
+              <p>Lancez des apps, ouvrez des URLs ou exécutez du code</p>
+            </div>
+            <div class="credit-item">
+              <h3>🎨 Design moderne</h3>
+              <p>Interface fluide avec effet vitre Windows 11</p>
+            </div>
+            <div class="credit-item">
+              <h3>💾 Sauvegarde auto</h3>
+              <p>Vos raccourcis sont conservés entre les sessions</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="shortcuts">
+          <h1>Gestion des raccourcis</h1>
+          <p>Créez et gérez vos raccourcis clavier personnalisés.</p>
+          
+          <button class="btn" onclick="openAddModal()">➕ Nouveau raccourci</button>
+          
+          <div class="shortcut-list" id="shortcutList">
+            <!-- Les raccourcis seront ajoutés ici dynamiquement -->
+          </div>
+        </div>
+
+        <div class="section" id="settings">
+          <h1>Paramètres</h1>
+          
+          <div class="credit-item">
+            <h3>📍 Emplacement d'installation</h3>
+            <p id="installPath">Chargement...</p>
+            <button class="btn btn-secondary" onclick="openInstallFolder()" style="margin-top: 12px;">📂 Ouvrir le dossier</button>
+          </div>
+
+          <div class="credit-item">
+            <h3>🔄 Mises à jour</h3>
+            <p>Version actuelle : <strong>1.0.0</strong></p>
+            <p id="lastCheck" style="color: #60cdff;">Dernière vérification : Jamais</p>
+            <button class="btn" onclick="checkForUpdates()">Vérifier les mises à jour</button>
+          </div>
+
+          <div class="credit-item">
+            <h3>🚀 Démarrage automatique</h3>
+            <p>Lancer PowerTools au démarrage de Windows</p>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px;">
+              <div class="toggle-switch" id="autoStartToggle" onclick="toggleAutoStart()"></div>
+              <span id="autoStartStatus">Désactivé</span>
+            </div>
+          </div>
+
+          <div class="credit-item">
+            <h3>💾 Données</h3>
+            <p>Gérez vos données et préférences</p>
+            <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" onclick="exportShortcuts()">📤 Exporter les raccourcis</button>
+              <button class="btn btn-secondary" onclick="importShortcuts()">📥 Importer les raccourcis</button>
+              <button class="btn btn-danger" onclick="resetShortcuts()">🗑️ Réinitialiser</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="credits">
+          <div class="logo">⚡</div>
+          <h1>BetterShorts</h1>
+          <p style="font-size: 18px; color: rgba(255,255,255,0.6);">Version 1.0.0</p>
+          
+          <div class="credit-item">
+            <h3>📝 Licence</h3>
+            <p>MIT License - Libre d'utilisation et de modification</p>
+          </div>
+
+          <div class="credit-item">
+            <h3>👨‍💻 Développeurs</h3>
+            <p>• Développeur Principal - Maxlware<br>
+               • Contributeurs - null<br>
+               • Design - Inspiré par Windows 11 Fluent Design</p>
+          </div>
+
+          <div class="credit-item">
+            <h3>🛠️ Technologies utilisées</h3>
+            <p>• Electron - Framework d'application de bureau<br>
+               • Node.js - Runtime JavaScript<br>
+               • HTML5/CSS3 - Interface utilisateur moderne</p>
+          </div>
+
+          <div class="credit-item">
+            <h3>🔗 Liens</h3>
+            <div style="display: flex; gap: 12px; margin-top: 12px;">
+              <button class="btn btn-secondary">📖 Documentation</button>
+              <button class="btn btn-secondary">💬 Support</button>
+              <button class="btn btn-secondary">⭐ GitHub</button>
+            </div>
+          </div>
+
+          <p style="text-align: center; margin-top: 32px; color: rgba(255,255,255,0.4);">
+            Fait avec ❤️ pour la productivité
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="shortcutModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Nouveau raccourci</h2>
+      
+      <div class="form-group">
+        <label>Nom du raccourci</label>
+        <input type="text" id="shortcutName" placeholder="Ex: Ouvrir Chrome">
+      </div>
+
+      <div class="form-group">
+        <label>Combinaison de touches</label>
+        <input type="text" id="shortcutKeys" placeholder="Ex: CommandOrControl+Alt+C" readonly>
+        <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">
+          Cliquez et appuyez sur les touches désirées
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>Type d'action</label>
+        <select id="shortcutType" onchange="updateActionFields()">
+          <option value="app">Ouvrir une application</option>
+          <option value="url">Ouvrir une URL</option>
+          <option value="code">Exécuter du code</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label id="targetLabel">Chemin de l'application</label>
+        <input type="text" id="shortcutTarget" placeholder="Ex: C:\Program Files\Google\Chrome\Application\chrome.exe">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+        <button class="btn" onclick="saveShortcut()">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const { shell } = require('electron');
+    let shortcuts = [];
+    let settings = {};
+    let editingIndex = -1;
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById(sectionId).classList.add('active');
+      event.target.closest('.nav-item').classList.add('active');
+
+      if (sectionId === 'settings') {
+        loadSettingsUI();
+      }
+    }
+
+    async function minimizeWindow() {
+      await ipcRenderer.invoke('minimize-window');
+    }
+
+    async function maximizeWindow() {
+      await ipcRenderer.invoke('maximize-window');
+    }
+
+    async function closeWindow() {
+      await ipcRenderer.invoke('close-window');
+    }
+
+    async function loadShortcuts() {
+      shortcuts = await ipcRenderer.invoke('get-shortcuts');
+      renderShortcuts();
+    }
+
+    function renderShortcuts() {
+      const list = document.getElementById('shortcutList');
+      
+      if (shortcuts.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #b3b3b3; margin-top: 32px;">Aucun raccourci configuré. Cliquez sur "Nouveau raccourci" pour commencer.</p>';
+        return;
+      }
+
+      list.innerHTML = shortcuts.map((s, i) => `
+        <div class="shortcut-item">
+          <div class="shortcut-info">
+            <div class="shortcut-keys">${s.keys}</div>
+            <div><strong>${s.name}</strong></div>
+            <div style="color: #b3b3b3; font-size: 13px;">${s.target}</div>
+          </div>
+          <div class="shortcut-actions">
+            <button class="btn btn-secondary" onclick="editShortcut(${i})">✏️</button>
+            <button class="btn btn-danger" onclick="deleteShortcut(${i})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAddModal() {
+      editingIndex = -1;
+      document.getElementById('modalTitle').textContent = 'Nouveau raccourci';
+      document.getElementById('shortcutName').value = '';
+      document.getElementById('shortcutKeys').value = '';
+      document.getElementById('shortcutType').value = 'app';
+      document.getElementById('shortcutTarget').value = '';
+      updateActionFields();
+      document.getElementById('shortcutModal').classList.add('active');
+    }
+
+    function editShortcut(index) {
+      editingIndex = index;
+      const s = shortcuts[index];
+      document.getElementById('modalTitle').textContent = 'Modifier le raccourci';
+      document.getElementById('shortcutName').value = s.name;
+      document.getElementById('shortcutKeys').value = s.keys;
+      document.getElementById('shortcutType').value = s.type;
+      document.getElementById('shortcutTarget').value = s.target;
+      updateActionFields();
+      document.getElementById('shortcutModal').classList.add('active');
+    }
+
+    async function deleteShortcut(index) {
+      if (confirm('Supprimer ce raccourci ?')) {
+        shortcuts.splice(index, 1);
+        await ipcRenderer.invoke('save-shortcuts', shortcuts);
+        renderShortcuts();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('shortcutModal').classList.remove('active');
+    }
+
+    async function saveShortcut() {
+      const name = document.getElementById('shortcutName').value;
+      const keys = document.getElementById('shortcutKeys').value;
+      const type = document.getElementById('shortcutType').value;
+      const target = document.getElementById('shortcutTarget').value;
+
+      if (!name || !keys || !target) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+
+      const shortcut = { name, keys, type, target, enabled: true };
+
+      if (editingIndex >= 0) {
+        shortcuts[editingIndex] = shortcut;
+      } else {
+        shortcuts.push(shortcut);
+      }
+
+      await ipcRenderer.invoke('save-shortcuts', shortcuts);
+      renderShortcuts();
+      closeModal();
+    }
+
+    function updateActionFields() {
+      const type = document.getElementById('shortcutType').value;
+      const label = document.getElementById('targetLabel');
+      const input = document.getElementById('shortcutTarget');
+
+      if (type === 'app') {
+        label.textContent = 'Chemin de l\'application';
+        input.placeholder = 'Ex: C:\\Program Files\\App\\app.exe';
+      } else if (type === 'url') {
+        label.textContent = 'URL';
+        input.placeholder = 'Ex: https://google.com';
+      } else {
+        label.textContent = 'Code JavaScript';
+        input.placeholder = 'Ex: console.log("Hello!")';
+      }
+    }
+
+    async function loadSettingsUI() {
+      settings = await ipcRenderer.invoke('get-settings');
+      
+      const toggle = document.getElementById('autoStartToggle');
+      const status = document.getElementById('autoStartStatus');
+      if (settings.autoStart) {
+        toggle.classList.add('active');
+        status.textContent = 'Activé';
+        status.style.color = '#60cdff';
+      } else {
+        toggle.classList.remove('active');
+        status.textContent = 'Désactivé';
+        status.style.color = '#b3b3b3';
+      }
+
+      if (settings.lastCheck) {
+        const date = new Date(settings.lastCheck);
+        document.getElementById('lastCheck').textContent = 
+          `Dernière vérification : ${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR')}`;
+      }
+
+      const installPath = await ipcRenderer.invoke('get-installation-path');
+      document.getElementById('installPath').textContent = installPath;
+    }
+
+    async function toggleAutoStart() {
+      const toggle = document.getElementById('autoStartToggle');
+      const status = document.getElementById('autoStartStatus');
+      const newState = !settings.autoStart;
+      
+      const result = await ipcRenderer.invoke('toggle-autostart', newState);
+      
+      if (result.success) {
+        settings.autoStart = newState;
+        if (newState) {
+          toggle.classList.add('active');
+          status.textContent = 'Activé';
+          status.style.color = '#60cdff';
+        } else {
+          toggle.classList.remove('active');
+          status.textContent = 'Désactivé';
+          status.style.color = '#b3b3b3';
+        }
+      } else {
+        alert('Erreur lors de la configuration du démarrage automatique');
+      }
+    }
+
+    async function checkForUpdates() {
+      const btn = event.target;
+      btn.textContent = '⏳ Vérification...';
+      btn.disabled = true;
+
+      const result = await ipcRenderer.invoke('check-updates');
+      
+      setTimeout(() => {
+        btn.textContent = 'Vérifier les mises à jour';
+        btn.disabled = false;
+        
+        if (result.updateAvailable) {
+          alert(`Nouvelle version disponible : ${result.latestVersion}`);
+        } else {
+          alert('Vous utilisez la dernière version !');
+        }
+
+        document.getElementById('lastCheck').textContent = 
+          `Dernière vérification : ${new Date(result.lastCheck).toLocaleDateString('fr-FR')} à ${new Date(result.lastCheck).toLocaleTimeString('fr-FR')}`;
+      }, 1500);
+    }
+
+    async function exportShortcuts() {
+      const result = await ipcRenderer.invoke('export-shortcuts');
+      
+      if (result.success) {
+        alert(`Raccourcis exportés avec succès vers :\n${result.path}`);
+      } else if (!result.canceled) {
+        alert('Erreur lors de l\'export : ' + (result.error || 'Erreur inconnue'));
+      }
+    }
+
+    async function importShortcuts() {
+      const result = await ipcRenderer.invoke('import-shortcuts');
+      
+      if (result.success) {
+        alert(`${result.count} raccourci(s) importé(s) avec succès !`);
+        await loadShortcuts();
+      } else if (!result.canceled) {
+        alert('Erreur lors de l\'import : ' + (result.error || 'Erreur inconnue'));
+      }
+    }
+
+    async function resetShortcuts() {
+      if (confirm('⚠️ Voulez-vous vraiment supprimer tous vos raccourcis ?\nCette action est irréversible.')) {
+        const result = await ipcRenderer.invoke('reset-shortcuts');
+        
+        if (result.success) {
+          alert('Tous les raccourcis ont été supprimés.');
+          await loadShortcuts();
+        } else {
+          alert('Erreur lors de la réinitialisation : ' + (result.error || 'Erreur inconnue'));
+        }
+      }
+    }
+
+    async function openInstallFolder() {
+      const installPath = await ipcRenderer.invoke('get-installation-path');
+      shell.openPath(installPath);
+    }
+
+    let keyCapture = false;
+    const keysInput = document.getElementById('shortcutKeys');
+
+    keysInput.addEventListener('focus', () => {
+      keyCapture = true;
+      keysInput.value = '';
+    });
+
+    keysInput.addEventListener('blur', () => {
+      keyCapture = false;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!keyCapture) return;
+      e.preventDefault();
+
+      const keys = [];
+      if (e.ctrlKey || e.metaKey) keys.push('CommandOrControl');
+      if (e.altKey) keys.push('Alt');
+      if (e.shiftKey) keys.push('Shift');
+      
+      if (e.key && !['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+        keys.push(e.key.toUpperCase());
+      }
+
+      if (keys.length > 1) {
+        keysInput.value = keys.join('+');
+      }
+    });
+
+    loadShortcuts();
+    loadSettingsUI();
+  </script>
+</body>
+</html>
