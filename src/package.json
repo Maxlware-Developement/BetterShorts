@@ -1,0 +1,53 @@
+{
+  "name": "bettershorts",
+  "version": "0.0.1",
+  "description": "Application de raccourcis clavier.",
+  "main": "main.js",
+
+  "author": "Maxlware",
+  "license": "MIT",
+
+  "type": "module",
+
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+
+  "dependencies": {
+    "electron": "^28.0.0"
+  },
+
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
+  },
+
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maxlware-Developement/BetterShorts.git"
+  },
+
+  "bugs": {
+    "url": "https://github.com/Maxlware-Developement/BetterShorts/issues"
+  },
+
+  "build": {
+    "appId": "com.maxlware.betterShorts",
+    "productName": "BetterShorts",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "index.html",
+      "logo.png"
+    ],
+    "mac": { "target": "dmg" },
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" }
+  }
+}
