@@ -7,8 +7,6 @@
   "author": "Maxlware",
   "license": "MIT",
 
-  "type": "module",
-
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
